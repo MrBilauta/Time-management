@@ -1,0 +1,68 @@
+import { useState } from 'react';
+import { FolderKanban, Clock, Calendar, Receipt, BarChart3, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import ProjectManagement from '@/components/ProjectManagement';
+import TimesheetApprovals from '@/components/TimesheetApprovals';
+import LeaveApprovals from '@/components/LeaveApprovals';
+import ReimbursementApprovals from '@/components/ReimbursementApprovals';
+import Reports from '@/components/Reports';
+
+const ManagerDashboard = ({ user, onLogout }) => {
+  const [activeTab, setActiveTab] = useState('projects');
+
+  const menuItems = [
+    { id: 'projects', label: 'Projects', icon: FolderKanban },
+    { id: 'timesheets', label: 'Timesheet Approvals', icon: Clock },
+    { id: 'leaves', label: 'Leave Approvals', icon: Calendar },
+    { id: 'reimbursements', label: 'Reimbursements', icon: Receipt },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
+  ];
+
+  return (
+    <div className="flex min-h-screen" data-testid="manager-dashboard">
+      <aside className="sidebar">
+        <div className="mb-8">
+          <h1 className="text-xl font-bold">Manager Portal</h1>
+          <p className="text-sm text-blue-200 mt-1">{user.name}</p>
+          <p className="text-xs text-blue-300">{user.email}</p>
+        </div>
+        <nav className="space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`nav-link w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left ${activeTab === item.id ? 'active bg-white/20' : ''}`}
+                data-testid={`nav-${item.id}`}
+              >
+                <Icon size={20} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <Button
+          onClick={onLogout}
+          variant="ghost"
+          className="w-full mt-8 text-white hover:bg-white/10"
+          data-testid="logout-button"
+        >
+          <LogOut size={20} className="mr-2" />
+          Logout
+        </Button>
+      </aside>
+      <main className="main-content">
+        <div className="max-w-7xl mx-auto">
+          {activeTab === 'projects' && <ProjectManagement user={user} />}
+          {activeTab === 'timesheets' && <TimesheetApprovals user={user} />}
+          {activeTab === 'leaves' && <LeaveApprovals user={user} />}
+          {activeTab === 'reimbursements' && <ReimbursementApprovals user={user} />}
+          {activeTab === 'reports' && <Reports />}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default ManagerDashboard;
