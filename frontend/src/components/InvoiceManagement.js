@@ -218,6 +218,16 @@ const InvoiceManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
+                  {invoice.milestone_description && (
+                    <div className="text-sm text-gray-600">
+                      <strong>Description:</strong> {invoice.milestone_description}
+                    </div>
+                  )}
+                  {invoice.milestone_due_date && (
+                    <div className="text-sm text-gray-600">
+                      <strong>Due Date:</strong> {new Date(invoice.milestone_due_date).toLocaleDateString()}
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-gray-600">Estimated</p>
@@ -228,6 +238,16 @@ const InvoiceManagement = () => {
                       <p className="text-sm font-semibold">{invoice.actual_hours}h / ${invoice.actual_cost.toFixed(2)}</p>
                     </div>
                   </div>
+                  {invoice.payment_terms && (
+                    <div className="text-sm text-gray-600">
+                      <strong>Payment Terms:</strong> {invoice.payment_terms}
+                    </div>
+                  )}
+                  {invoice.notes && (
+                    <div className="text-sm text-gray-600 p-2 bg-gray-50 rounded">
+                      <strong>Notes:</strong> {invoice.notes}
+                    </div>
+                  )}
                   <div className="text-xs text-gray-500">
                     Created: {new Date(invoice.created_at).toLocaleDateString()}
                   </div>
