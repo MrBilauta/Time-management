@@ -700,6 +700,19 @@ async def reject_reimbursement(reimbursement_id: str, comments: str, current_use
     updated = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
     return updated
 
+@api_router.delete("/reimbursements/{reimbursement_id}")
+async def delete_reimbursement(reimbursement_id: str, current_user: dict = Depends(get_current_user)):
+    reimbursement = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
+    if not reimbursement:
+        raise HTTPException(status_code=404, detail="Reimbursement not found")
+    
+    # Only allow deletion of own pending reimbursements
+    if reimbursement["user_id"] != current_user["id"] or reimbursement["status"] != "pending":
+        raise HTTPException(status_code=403, detail="Cannot delete this reimbursement")
+    
+    result = await db.reimbursements.delete_one({"id": reimbursement_id})
+    return {"message": "Reimbursement deleted successfully"}
+
 # ============ REPORTS ROUTES ============
 
 @api_router.get("/reports/timesheet-summary")
