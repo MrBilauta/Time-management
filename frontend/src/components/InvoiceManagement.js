@@ -209,7 +209,7 @@ const InvoiceManagement = () => {
                       <DollarSign size={20} />
                       {project?.project_code || 'Unknown Project'}
                     </CardTitle>
-                    <CardDescription>{invoice.milestone || 'No milestone'}</CardDescription>
+                    <CardDescription>{invoice.milestone_name || 'No milestone'}</CardDescription>
                   </div>
                   <span className={`status-badge status-${invoice.status}`}>
                     {invoice.status}
