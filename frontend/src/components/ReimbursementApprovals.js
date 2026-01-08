@@ -152,9 +152,9 @@ const ReimbursementApprovals = ({ user }) => {
                     <p className="text-sm text-gray-600">{reimbursement.description}</p>
                   </div>
                   {reimbursement.receipt && (
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700">Receipt:</p>
-                      <p className="text-sm text-gray-600">{reimbursement.receipt}</p>
+                    <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                      <p className="text-sm font-semibold text-blue-900">Receipt Attached:</p>
+                      <p className="text-sm text-blue-700">{reimbursement.receipt.filename || 'Document attached'}</p>
                     </div>
                   )}
                   <div className="text-xs text-gray-500">
