@@ -18,9 +18,13 @@ const InvoiceManagement = () => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     project_id: '',
-    milestone: '',
+    milestone_name: '',
+    milestone_description: '',
+    milestone_due_date: '',
     estimated_hours: 0,
     estimated_cost: 0,
+    payment_terms: '',
+    notes: '',
   });
 
   useEffect(() => {
