@@ -693,6 +693,143 @@ async def get_project_hours(current_user: dict = Depends(require_role(["admin", 
     
     return project_hours
 
+# ============ CSV EXPORT ROUTES ============
+
+@api_router.get("/reports/export/timesheets")
+async def export_timesheets_csv(current_user: dict = Depends(require_role(["admin", "manager"]))):
+    timesheets = await db.timesheets.find({"status": "approved"}, {"_id": 0}).to_list(1000)
+    users = await db.users.find({}, {"_id": 0}).to_list(1000)
+    user_map = {u["id"]: u for u in users}
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Employee", "Week Start", "Total Hours", "Status", "Submitted At"])
+    
+    for ts in timesheets:
+        user = user_map.get(ts["user_id"], {})
+        writer.writerow([
+            user.get("name", "Unknown"),
+            ts["week_start"],
+            ts["total_hours"],
+            ts["status"],
+            ts.get("submitted_at", "")
+        ])
+    
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=timesheets.csv"}
+    )
+
+@api_router.get("/reports/export/leaves")
+async def export_leaves_csv(current_user: dict = Depends(require_role(["admin", "manager"]))):
+    leaves = await db.leaves.find({}, {"_id": 0}).to_list(1000)
+    users = await db.users.find({}, {"_id": 0}).to_list(1000)
+    user_map = {u["id"]: u for u in users}
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Employee", "Start Date", "End Date", "Days", "Status", "Reason"])
+    
+    for leave in leaves:
+        user = user_map.get(leave["user_id"], {})
+        writer.writerow([
+            user.get("name", "Unknown"),
+            leave["start_date"],
+            leave["end_date"],
+            leave["days"],
+            leave["status"],
+            leave["reason"]
+        ])
+    
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=leaves.csv"}
+    )
+
+# ============ FILE UPLOAD ROUTES ============
+
+@api_router.post("/upload/user/{user_id}/document")
+async def upload_user_document(
+    user_id: str,
+    file: UploadFile = File(...),
+    document_type: str = Form(...),
+    current_user: dict = Depends(require_role(["admin"]))
+):
+    # Read file content
+    content = await file.read()
+    encoded_content = base64.b64encode(content).decode('utf-8')
+    
+    # Create document entry
+    document = {
+        "type": document_type,
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "data": encoded_content,
+        "uploaded_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Update user documents
+    await db.users.update_one(
+        {"id": user_id},
+        {"$push": {"documents": document}}
+    )
+    
+    return {"message": "Document uploaded successfully", "filename": file.filename}
+
+@api_router.post("/upload/project/{project_id}/document")
+async def upload_project_document(
+    project_id: str,
+    file: UploadFile = File(...),
+    document_type: str = Form(...),
+    current_user: dict = Depends(require_role(["admin", "manager"]))
+):
+    # Read file content
+    content = await file.read()
+    encoded_content = base64.b64encode(content).decode('utf-8')
+    
+    # Create document entry
+    document = {
+        "type": document_type,
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "data": encoded_content,
+        "uploaded_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Update project documents
+    await db.projects.update_one(
+        {"id": project_id},
+        {"$push": {"documents": document}}
+    )
+    
+    return {"message": "Document uploaded successfully", "filename": file.filename}
+
+@api_router.get("/download/document/{entity_type}/{entity_id}/{doc_index}")
+async def download_document(
+    entity_type: str,
+    entity_id: str,
+    doc_index: int,
+    current_user: dict = Depends(get_current_user)
+):
+    collection = db.users if entity_type == "user" else db.projects
+    entity = await collection.find_one({"id": entity_id}, {"_id": 0})
+    
+    if not entity or not entity.get("documents") or doc_index >= len(entity["documents"]):
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    document = entity["documents"][doc_index]
+    content = base64.b64decode(document["data"])
+    
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=document["content_type"],
+        headers={"Content-Disposition": f"attachment; filename={document['filename']}"}
+    )
+
 # Include router
 app.include_router(api_router)
 
