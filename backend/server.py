@@ -403,6 +403,13 @@ async def get_project(project_id: str, current_user: dict = Depends(get_current_
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
+@api_router.delete("/projects/{project_id}")
+async def delete_project(project_id: str, current_user: dict = Depends(require_role(["admin", "manager"]))):
+    result = await db.projects.delete_one({"id": project_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return {"message": "Project deleted successfully"}
+
 # ============ TIMESHEET ROUTES ============
 
 @api_router.get("/timesheets")
