@@ -689,13 +689,13 @@ async def get_project_hours(current_user: dict = Depends(require_role(["admin", 
             if project_code:
                 if project_code not in project_hours:
                     project_hours[project_code] = 0
-                # Sum all daily hours
+                # Sum all daily hours - convert to float to handle string values
                 daily_hours = sum([
-                    entry.get("mon", 0),
-                    entry.get("tue", 0),
-                    entry.get("wed", 0),
-                    entry.get("thu", 0),
-                    entry.get("fri", 0)
+                    float(entry.get("mon", 0) or 0),
+                    float(entry.get("tue", 0) or 0),
+                    float(entry.get("wed", 0) or 0),
+                    float(entry.get("thu", 0) or 0),
+                    float(entry.get("fri", 0) or 0)
                 ])
                 project_hours[project_code] += daily_hours
     
