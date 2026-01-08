@@ -146,19 +146,27 @@ class Invoice(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     project_id: str
-    milestone: Optional[str] = None
+    milestone_name: Optional[str] = None
+    milestone_description: Optional[str] = None
+    milestone_due_date: Optional[str] = None
     estimated_hours: float
     estimated_cost: float
     actual_hours: float = 0.0
     actual_cost: float = 0.0
     status: str = "draft"  # draft, submitted, approved, paid
+    payment_terms: Optional[str] = None
+    notes: Optional[str] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class InvoiceCreate(BaseModel):
     project_id: str
-    milestone: Optional[str] = None
+    milestone_name: Optional[str] = None
+    milestone_description: Optional[str] = None
+    milestone_due_date: Optional[str] = None
     estimated_hours: float
     estimated_cost: float
+    payment_terms: Optional[str] = None
+    notes: Optional[str] = None
 
 class Reimbursement(BaseModel):
     model_config = ConfigDict(extra="ignore")
