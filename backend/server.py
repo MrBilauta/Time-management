@@ -511,6 +511,19 @@ async def reject_timesheet(timesheet_id: str, comments: str, current_user: dict 
     updated = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
     return updated
 
+@api_router.delete("/timesheets/{timesheet_id}")
+async def delete_timesheet(timesheet_id: str, current_user: dict = Depends(get_current_user)):
+    timesheet = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
+    if not timesheet:
+        raise HTTPException(status_code=404, detail="Timesheet not found")
+    
+    # Only allow deletion of own draft timesheets
+    if timesheet["user_id"] != current_user["id"] or timesheet["status"] != "draft":
+        raise HTTPException(status_code=403, detail="Cannot delete this timesheet")
+    
+    result = await db.timesheets.delete_one({"id": timesheet_id})
+    return {"message": "Timesheet deleted successfully"}
+
 # ============ LEAVE ROUTES ============
 
 @api_router.get("/leaves")
