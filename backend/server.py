@@ -217,6 +217,46 @@ def require_role(allowed_roles: List[str]):
         return current_user
     return role_checker
 
+# ============ EMAIL HELPER ============
+
+async def send_email_notification(recipient_email: str, subject: str, html_content: str):
+    """Send email notification asynchronously"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not configured, skipping email")
+        return
+    
+    try:
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [recipient_email],
+            "subject": subject,
+            "html": html_content
+        }
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Email sent to {recipient_email}")
+    except Exception as e:
+        logger.error(f"Failed to send email to {recipient_email}: {str(e)}")
+
+def create_approval_email(user_name: str, item_type: str, status: str, comments: str = None):
+    """Create HTML email for approval/rejection"""
+    status_color = "#22c55e" if status == "approved" else "#ef4444"
+    status_text = status.capitalize()
+    
+    html = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9fafb;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h2 style="color: #1e40af; margin-bottom: 20px;">Project Management System</h2>
+                <p style="font-size: 16px; color: #374151;">Hello {user_name},</p>
+                <p style="font-size: 16px; color: #374151;">Your {item_type} has been <strong style="color: {status_color};">{status_text}</strong>.</p>
+                {f'<div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0;"><p style="margin: 0; color: #92400e;"><strong>Manager Comments:</strong><br>{comments}</p></div>' if comments else ''}
+                <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">Login to your dashboard to view details.</p>
+            </div>
+        </body>
+    </html>
+    """
+    return html
+
 # ============ AUTH ROUTES ============
 
 @api_router.post("/auth/register")
