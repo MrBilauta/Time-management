@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { BarChart3, Clock, Users } from 'lucide-react';
+import { BarChart3, Clock, Users, Download } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -55,11 +56,65 @@ const Reports = () => {
     }
   };
 
+  const downloadTimesheetsCSV = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${BACKEND_URL}/api/reports/export/timesheets`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'timesheets.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Timesheets exported successfully');
+    } catch (error) {
+      toast.error('Failed to export timesheets');
+    }
+  };
+
+  const downloadLeavesCSV = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${BACKEND_URL}/api/reports/export/leaves`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'leaves.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Leaves exported successfully');
+    } catch (error) {
+      toast.error('Failed to export leaves');
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <div data-testid="reports">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Reports & Analytics</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Reports & Analytics</h2>
+        <div className="flex gap-2">
+          <Button onClick={downloadTimesheetsCSV} variant="outline" data-testid="export-timesheets-btn">
+            <Download size={16} className="mr-2" />
+            Export Timesheets
+          </Button>
+          <Button onClick={downloadLeavesCSV} variant="outline" data-testid="export-leaves-btn">
+            <Download size={16} className="mr-2" />
+            Export Leaves
+          </Button>
+        </div>
+      </div>
       
       <div className="grid gap-6">
         <Card>
