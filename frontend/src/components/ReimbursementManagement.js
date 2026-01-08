@@ -179,13 +179,31 @@ const ReimbursementManagement = ({ user }) => {
                   </CardTitle>
                   <CardDescription>{reimbursement.description}</CardDescription>
                 </div>
-                <span className={`status-badge status-${reimbursement.status}`}>
-                  {reimbursement.status}
-                </span>
+                <div className="flex gap-2 items-center">
+                  <span className={`status-badge status-${reimbursement.status}`}>
+                    {reimbursement.status}
+                  </span>
+                  {reimbursement.status === 'pending' && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteReimbursement(reimbursement.id)}
+                      data-testid={`delete-reimbursement-${reimbursement.id}`}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
+                {reimbursement.receipt && (
+                  <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                    <p className="text-sm font-semibold text-blue-900">Receipt Attached:</p>
+                    <p className="text-sm text-blue-700">{reimbursement.receipt.filename}</p>
+                  </div>
+                )}
                 {reimbursement.comments && (
                   <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
                     <p className="text-sm font-semibold text-yellow-900">Manager Comments:</p>
