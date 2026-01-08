@@ -174,7 +174,7 @@ class Reimbursement(BaseModel):
     user_id: str
     amount: float
     description: str
-    receipt: Optional[str] = None  # base64 or file path
+    receipt: Optional[Dict[str, str]] = None  # {filename, content_type, data}
     status: str = "pending"  # pending, approved, rejected, paid
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[str] = None
@@ -184,7 +184,7 @@ class Reimbursement(BaseModel):
 class ReimbursementCreate(BaseModel):
     amount: float
     description: str
-    receipt: Optional[str] = None
+    receipt: Optional[Dict[str, str]] = None
 
 # ============ AUTH UTILITIES ============
 
