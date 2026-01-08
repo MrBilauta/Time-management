@@ -635,6 +635,13 @@ async def update_invoice(invoice_id: str, updates: dict, current_user: dict = De
     updated = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
     return updated
 
+@api_router.delete("/invoices/{invoice_id}")
+async def delete_invoice(invoice_id: str, current_user: dict = Depends(require_role(["admin", "manager"]))):
+    result = await db.invoices.delete_one({"id": invoice_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    return {"message": "Invoice deleted successfully"}
+
 # ============ REIMBURSEMENT ROUTES ============
 
 @api_router.get("/reimbursements")
