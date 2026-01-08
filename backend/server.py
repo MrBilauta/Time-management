@@ -600,6 +600,19 @@ async def reject_leave(leave_id: str, comments: str, current_user: dict = Depend
     updated = await db.leaves.find_one({"id": leave_id}, {"_id": 0})
     return updated
 
+@api_router.delete("/leaves/{leave_id}")
+async def delete_leave(leave_id: str, current_user: dict = Depends(get_current_user)):
+    leave = await db.leaves.find_one({"id": leave_id}, {"_id": 0})
+    if not leave:
+        raise HTTPException(status_code=404, detail="Leave not found")
+    
+    # Only allow deletion of own pending leaves
+    if leave["user_id"] != current_user["id"] or leave["status"] != "pending":
+        raise HTTPException(status_code=403, detail="Cannot delete this leave")
+    
+    result = await db.leaves.delete_one({"id": leave_id})
+    return {"message": "Leave deleted successfully"}
+
 # ============ INVOICE ROUTES ============
 
 @api_router.get("/invoices")
