@@ -18,8 +18,8 @@ const ReimbursementManagement = ({ user }) => {
   const [formData, setFormData] = useState({
     amount: 0,
     description: '',
-    receipt: '',
   });
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     fetchReimbursements();
@@ -39,23 +39,66 @@ const ReimbursementManagement = ({ user }) => {
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload only PDF or image files (JPG, PNG)');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/reimbursements`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
+      const formDataToSend = new FormData();
+      formDataToSend.append('amount', formData.amount);
+      formDataToSend.append('description', formData.description);
+      if (selectedFile) {
+        formDataToSend.append('file', selectedFile);
+      }
+
+      await axios.post(`${BACKEND_URL}/api/reimbursements/with-file`, formDataToSend, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        },
       });
       toast.success('Reimbursement submitted');
       setOpen(false);
       setFormData({
         amount: 0,
         description: '',
-        receipt: '',
       });
+      setSelectedFile(null);
       fetchReimbursements();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to submit reimbursement');
+    }
+  };
+
+  const deleteReimbursement = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this reimbursement?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${BACKEND_URL}/api/reimbursements/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Reimbursement deleted');
+      fetchReimbursements();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete reimbursement');
     }
   };
 
