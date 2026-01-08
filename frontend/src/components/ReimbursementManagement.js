@@ -143,13 +143,21 @@ const ReimbursementManagement = ({ user }) => {
                 />
               </div>
               <div>
-                <Label>Receipt/Bill (Optional)</Label>
+                <Label>Receipt/Bill (PDF or Image)</Label>
                 <Input
-                  placeholder="Upload reference or note"
-                  value={formData.receipt}
-                  onChange={(e) => setFormData({ ...formData, receipt: e.target.value })}
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
                   data-testid="receipt-input"
                 />
+                {selectedFile && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✓ {selectedFile.name} selected
+                  </p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Accepted: JPG, PNG, PDF (Max 5MB)
+                </p>
               </div>
               <Button type="submit" className="w-full" data-testid="submit-reimbursement-form-button">
                 Submit Reimbursement
