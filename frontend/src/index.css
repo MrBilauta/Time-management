@@ -113,3 +113,16 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+/* Hide Emergent watermark */
+a[href*="emergent.sh"],
+img[alt*="emergent" i],
+div[class*="emergent" i]:not([class*="management" i]) {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Hide any fixed positioned elements in bottom right */
+[style*="position: fixed"][style*="bottom"][style*="right"] {
+    display: none !important;
+}
