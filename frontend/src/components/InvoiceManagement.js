@@ -117,36 +117,75 @@ const InvoiceManagement = () => {
                 </Select>
               </div>
               <div>
-                <Label>Milestone</Label>
+                <Label>Milestone Name *</Label>
                 <Input
                   placeholder="e.g., Phase 1, Milestone A"
-                  value={formData.milestone}
-                  onChange={(e) => setFormData({ ...formData, milestone: e.target.value })}
-                  data-testid="invoice-milestone-input"
+                  value={formData.milestone_name}
+                  onChange={(e) => setFormData({ ...formData, milestone_name: e.target.value })}
+                  data-testid="invoice-milestone-name-input"
+                  required
                 />
               </div>
               <div>
-                <Label>Estimated Hours *</Label>
-                <Input
-                  type="number"
-                  step="0.5"
-                  placeholder="0"
-                  value={formData.estimated_hours}
-                  onChange={(e) => setFormData({ ...formData, estimated_hours: parseFloat(e.target.value) })}
-                  required
-                  data-testid="invoice-hours-input"
+                <Label>Milestone Description</Label>
+                <Textarea
+                  placeholder="Describe the milestone deliverables"
+                  value={formData.milestone_description}
+                  onChange={(e) => setFormData({ ...formData, milestone_description: e.target.value })}
+                  data-testid="invoice-milestone-desc-input"
                 />
               </div>
               <div>
-                <Label>Estimated Cost *</Label>
+                <Label>Milestone Due Date</Label>
                 <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.estimated_cost}
-                  onChange={(e) => setFormData({ ...formData, estimated_cost: parseFloat(e.target.value) })}
-                  required
-                  data-testid="invoice-cost-input"
+                  type="date"
+                  value={formData.milestone_due_date}
+                  onChange={(e) => setFormData({ ...formData, milestone_due_date: e.target.value })}
+                  data-testid="invoice-due-date-input"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Estimated Hours *</Label>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    placeholder="0"
+                    value={formData.estimated_hours}
+                    onChange={(e) => setFormData({ ...formData, estimated_hours: parseFloat(e.target.value) })}
+                    required
+                    data-testid="invoice-hours-input"
+                  />
+                </div>
+                <div>
+                  <Label>Estimated Cost *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.estimated_cost}
+                    onChange={(e) => setFormData({ ...formData, estimated_cost: parseFloat(e.target.value) })}
+                    required
+                    data-testid="invoice-cost-input"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Payment Terms</Label>
+                <Input
+                  placeholder="e.g., Net 30, Due on completion"
+                  value={formData.payment_terms}
+                  onChange={(e) => setFormData({ ...formData, payment_terms: e.target.value })}
+                  data-testid="invoice-payment-terms-input"
+                />
+              </div>
+              <div>
+                <Label>Notes</Label>
+                <Textarea
+                  placeholder="Additional notes or comments"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  data-testid="invoice-notes-input"
                 />
               </div>
               <Button type="submit" className="w-full" data-testid="submit-invoice-button">
