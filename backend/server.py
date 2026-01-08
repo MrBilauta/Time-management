@@ -661,6 +661,32 @@ async def create_reimbursement(reimbursement_data: ReimbursementCreate, current_
     await db.reimbursements.insert_one(reimbursement.model_dump())
     return reimbursement.model_dump()
 
+@api_router.post("/reimbursements/with-file")
+async def create_reimbursement_with_file(
+    amount: float = Form(...),
+    description: str = Form(...),
+    file: Optional[UploadFile] = File(None),
+    current_user: dict = Depends(get_current_user)
+):
+    receipt_data = None
+    if file:
+        # Read and encode file
+        content = await file.read()
+        receipt_data = {
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "data": base64.b64encode(content).decode('utf-8')
+        }
+    
+    reimbursement = Reimbursement(
+        user_id=current_user["id"],
+        amount=amount,
+        description=description,
+        receipt=receipt_data
+    )
+    await db.reimbursements.insert_one(reimbursement.model_dump())
+    return reimbursement.model_dump()
+
 @api_router.post("/reimbursements/{reimbursement_id}/approve")
 async def approve_reimbursement(reimbursement_id: str, comments: Optional[str] = None, current_user: dict = Depends(require_role(["admin", "manager"]))):
     reimbursement = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
