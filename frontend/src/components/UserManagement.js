@@ -287,6 +287,7 @@ const UserManagement = () => {
               <TableHead>Designation</TableHead>
               <TableHead>Practice</TableHead>
               <TableHead>Leave Balance</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -306,6 +307,26 @@ const UserManagement = () => {
                 <TableCell>{user.designation || '-'}</TableCell>
                 <TableCell>{user.practice || '-'}</TableCell>
                 <TableCell>{user.leave_balance} days</TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEditDialog(user)}
+                      data-testid={`edit-user-${user.id}`}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteUser(user.id)}
+                      data-testid={`delete-user-${user.id}`}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
