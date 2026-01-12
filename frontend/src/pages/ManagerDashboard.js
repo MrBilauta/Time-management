@@ -56,6 +56,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
       </aside>
       <main className="main-content">
         <div className="max-w-7xl mx-auto">
+          {activeTab === 'users' && <UserManagement />}
           {activeTab === 'projects' && <ProjectManagement user={user} />}
           {activeTab === 'timesheets' && <TimesheetApprovals user={user} />}
           {activeTab === 'leaves' && <LeaveApprovals user={user} />}
