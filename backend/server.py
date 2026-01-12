@@ -706,27 +706,36 @@ async def create_reimbursement_with_file(
     return reimbursement.model_dump()
 
 @api_router.post("/reimbursements/{reimbursement_id}/approve")
-async def approve_reimbursement(reimbursement_id: str, comments: Optional[str] = None, current_user: dict = Depends(require_role(["admin", "manager"]))):
-    reimbursement = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
-    if not reimbursement:
-        raise HTTPException(status_code=404, detail="Reimbursement not found")
-    
-    updates = {
-        "status": "approved",
-        "reviewed_by": current_user["id"],
-        "reviewed_at": datetime.now(timezone.utc).isoformat(),
-        "comments": comments
-    }
-    await db.reimbursements.update_one({"id": reimbursement_id}, {"$set": updates})
-    
-    # Send email notification
-    user = await db.users.find_one({"id": reimbursement["user_id"]}, {"_id": 0})
-    if user:
-        email_html = create_approval_email(user["name"], "reimbursement", "approved", comments)
-        await send_email_notification(user["email"], "Reimbursement Approved", email_html)
-    
-    updated = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
-    return updated
+async def approve_reimbursement(reimbursement_id: str, comments: Optional[str] = Form(None), current_user: dict = Depends(require_role(["admin", "manager"]))):
+    try:
+        reimbursement = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
+        if not reimbursement:
+            raise HTTPException(status_code=404, detail="Reimbursement not found")
+        
+        updates = {
+            "status": "approved",
+            "reviewed_by": current_user["id"],
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "comments": comments
+        }
+        result = await db.reimbursements.update_one({"id": reimbursement_id}, {"$set": updates})
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update reimbursement")
+        
+        # Send email notification
+        user = await db.users.find_one({"id": reimbursement["user_id"]}, {"_id": 0})
+        if user:
+            email_html = create_approval_email(user["name"], "reimbursement", "approved", comments)
+            await send_email_notification(user["email"], "Reimbursement Approved", email_html)
+        
+        updated = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
+        return {"status": "success", "data": updated, "message": "Reimbursement approved successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error approving reimbursement: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to approve reimbursement: {str(e)}")
 
 @api_router.post("/reimbursements/{reimbursement_id}/reject")
 async def reject_reimbursement(reimbursement_id: str, comments: str = Form(...), current_user: dict = Depends(require_role(["admin", "manager"]))):
