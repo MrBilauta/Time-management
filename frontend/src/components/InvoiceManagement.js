@@ -134,16 +134,35 @@ const InvoiceManagement = () => {
     <div data-testid="invoice-management">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Invoices</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(val) => {
+          setOpen(val);
+          if (!val) {
+            setEditMode(false);
+            setEditingInvoiceId(null);
+          }
+        }}>
           <DialogTrigger asChild>
-            <Button data-testid="create-invoice-button">
+            <Button data-testid="create-invoice-button" onClick={() => {
+              setEditMode(false);
+              setEditingInvoiceId(null);
+              setFormData({
+                project_id: '',
+                milestone_name: '',
+                milestone_description: '',
+                milestone_due_date: '',
+                estimated_hours: 0,
+                estimated_cost: 0,
+                payment_terms: '',
+                notes: '',
+              });
+            }}>
               <Plus size={20} className="mr-2" />
               Create Invoice
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create Invoice</DialogTitle>
+              <DialogTitle>{editMode ? 'Edit Invoice' : 'Create Invoice'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4" data-testid="invoice-form">
               <div>
