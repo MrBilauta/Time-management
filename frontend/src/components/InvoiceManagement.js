@@ -314,6 +314,24 @@ const InvoiceManagement = () => {
                   <div className="text-xs text-gray-500">
                     Created: {new Date(invoice.created_at).toLocaleDateString()}
                   </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEditDialog(invoice)}
+                      data-testid={`edit-invoice-${invoice.id}`}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteInvoice(invoice.id)}
+                      data-testid={`delete-invoice-${invoice.id}`}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
