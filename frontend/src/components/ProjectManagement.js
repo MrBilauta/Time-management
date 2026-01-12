@@ -212,6 +212,24 @@ const ProjectManagement = ({ user }) => {
                   <Users size={16} className="mr-2" />
                   <span>{project.team_members?.length || 0} members</span>
                 </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openEditDialog(project)}
+                    data-testid={`edit-project-${project.id}`}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteProject(project.id)}
+                    data-testid={`delete-project-${project.id}`}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
