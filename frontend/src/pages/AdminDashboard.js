@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { Users, FolderKanban, FileText, DollarSign, BarChart3, LogOut } from 'lucide-react';
+import { Users, FolderKanban, FileText, DollarSign, BarChart3, LogOut, Clock, Calendar, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import UserManagement from '@/components/UserManagement';
 import ProjectManagement from '@/components/ProjectManagement';
 import InvoiceManagement from '@/components/InvoiceManagement';
+import TimesheetApprovals from '@/components/TimesheetApprovals';
+import LeaveApprovals from '@/components/LeaveApprovals';
+import ReimbursementApprovals from '@/components/ReimbursementApprovals';
 import Reports from '@/components/Reports';
 
 const AdminDashboard = ({ user, onLogout }) => {
@@ -12,6 +15,9 @@ const AdminDashboard = ({ user, onLogout }) => {
   const menuItems = [
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'projects', label: 'Projects', icon: FolderKanban },
+    { id: 'timesheets', label: 'Timesheet Approvals', icon: Clock },
+    { id: 'leaves', label: 'Leave Approvals', icon: Calendar },
+    { id: 'reimbursements', label: 'Reimbursements', icon: Receipt },
     { id: 'invoices', label: 'Invoices', icon: DollarSign },
     { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
