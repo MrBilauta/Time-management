@@ -578,27 +578,36 @@ async def approve_leave(leave_id: str, comments: Optional[str] = None, current_u
     return updated
 
 @api_router.post("/leaves/{leave_id}/reject")
-async def reject_leave(leave_id: str, comments: str, current_user: dict = Depends(require_role(["admin", "manager"]))):
-    leave = await db.leaves.find_one({"id": leave_id}, {"_id": 0})
-    if not leave:
-        raise HTTPException(status_code=404, detail="Leave not found")
-    
-    updates = {
-        "status": "rejected",
-        "reviewed_by": current_user["id"],
-        "reviewed_at": datetime.now(timezone.utc).isoformat(),
-        "comments": comments
-    }
-    await db.leaves.update_one({"id": leave_id}, {"$set": updates})
-    
-    # Send email notification
-    user = await db.users.find_one({"id": leave["user_id"]}, {"_id": 0})
-    if user:
-        email_html = create_approval_email(user["name"], "leave request", "rejected", comments)
-        await send_email_notification(user["email"], "Leave Request Rejected", email_html)
-    
-    updated = await db.leaves.find_one({"id": leave_id}, {"_id": 0})
-    return updated
+async def reject_leave(leave_id: str, comments: str = Form(...), current_user: dict = Depends(require_role(["admin", "manager"]))):
+    try:
+        leave = await db.leaves.find_one({"id": leave_id}, {"_id": 0})
+        if not leave:
+            raise HTTPException(status_code=404, detail="Leave not found")
+        
+        updates = {
+            "status": "rejected",
+            "reviewed_by": current_user["id"],
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "comments": comments
+        }
+        result = await db.leaves.update_one({"id": leave_id}, {"$set": updates})
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update leave")
+        
+        # Send email notification
+        user = await db.users.find_one({"id": leave["user_id"]}, {"_id": 0})
+        if user:
+            email_html = create_approval_email(user["name"], "leave request", "rejected", comments)
+            await send_email_notification(user["email"], "Leave Request Rejected", email_html)
+        
+        updated = await db.leaves.find_one({"id": leave_id}, {"_id": 0})
+        return {"status": "success", "data": updated, "message": "Leave rejected successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error rejecting leave: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to reject leave: {str(e)}")
 
 @api_router.delete("/leaves/{leave_id}")
 async def delete_leave(leave_id: str, current_user: dict = Depends(get_current_user)):
