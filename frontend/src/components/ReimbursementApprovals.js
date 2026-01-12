@@ -187,7 +187,16 @@ const ReimbursementApprovals = ({ user }) => {
                   {reimbursement.receipt && (
                     <div className="p-3 bg-blue-50 rounded border border-blue-200">
                       <p className="text-sm font-semibold text-blue-900">Receipt Attached:</p>
-                      <p className="text-sm text-blue-700">{reimbursement.receipt.filename || 'Document attached'}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-sm text-blue-700">{reimbursement.receipt.filename || 'Document attached'}</p>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => downloadReceipt(reimbursement.id)}
+                        >
+                          Download
+                        </Button>
+                      </div>
                     </div>
                   )}
                   <div className="text-xs text-gray-500">
