@@ -58,16 +58,21 @@ const TimesheetApprovals = ({ user }) => {
   const handleApprove = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/timesheets/${selectedTimesheet.id}/approve`, 
-        { comments },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Timesheet approved');
+      const formData = new FormData();
+      if (comments) formData.append('comments', comments);
+      
+      const response = await axios.post(`${BACKEND_URL}/api/timesheets/${selectedTimesheet.id}/approve`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.success(response.data.message || 'Timesheet approved');
       setDialogOpen(false);
       setComments('');
       fetchTimesheets();
     } catch (error) {
-      toast.error('Failed to approve timesheet');
+      toast.error(error.response?.data?.detail || 'Failed to approve timesheet');
     }
   };
 
@@ -78,16 +83,21 @@ const TimesheetApprovals = ({ user }) => {
     }
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/timesheets/${selectedTimesheet.id}/reject`, 
-        { comments },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Timesheet rejected');
+      const formData = new FormData();
+      formData.append('comments', comments);
+      
+      const response = await axios.post(`${BACKEND_URL}/api/timesheets/${selectedTimesheet.id}/reject`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.success(response.data.message || 'Timesheet rejected');
       setDialogOpen(false);
       setComments('');
       fetchTimesheets();
     } catch (error) {
-      toast.error('Failed to reject timesheet');
+      toast.error(error.response?.data?.detail || 'Failed to reject timesheet');
     }
   };
 
