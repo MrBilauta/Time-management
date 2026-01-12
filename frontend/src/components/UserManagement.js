@@ -148,35 +148,36 @@ const UserManagement = () => {
   return (
     <div data-testid="user-management">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-        <Dialog open={open} onOpenChange={(val) => {
-          setOpen(val);
-          if (!val) {
-            setEditMode(false);
-            setEditingUserId(null);
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button data-testid="add-user-button" onClick={() => {
+        <h2 className="text-2xl font-bold text-gray-900">{currentUser?.role === 'manager' ? 'Team Members' : 'User Management'}</h2>
+        {currentUser?.role === 'admin' && (
+          <Dialog open={open} onOpenChange={(val) => {
+            setOpen(val);
+            if (!val) {
               setEditMode(false);
               setEditingUserId(null);
-              setFormData({
-                email: '',
-                password: '',
-                name: '',
-                role: 'employee',
-                designation: '',
-                practice: '',
-                date_of_joining: '',
-                date_of_birth: '',
-                reporting_manager_id: '',
-                leave_balance: 20,
-              });
-            }}>
-              <Plus size={20} className="mr-2" />
-              Add User
-            </Button>
-          </DialogTrigger>
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button data-testid="add-user-button" onClick={() => {
+                setEditMode(false);
+                setEditingUserId(null);
+                setFormData({
+                  email: '',
+                  password: '',
+                  name: '',
+                  role: 'employee',
+                  designation: '',
+                  practice: '',
+                  date_of_joining: '',
+                  date_of_birth: '',
+                  reporting_manager_id: '',
+                  leave_balance: 20,
+                });
+              }}>
+                <Plus size={20} className="mr-2" />
+                Add User
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editMode ? 'Edit User' : 'Create New User'}</DialogTitle>
