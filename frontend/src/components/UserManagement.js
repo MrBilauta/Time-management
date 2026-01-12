@@ -54,11 +54,28 @@ const UserManagement = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/users`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('User created successfully');
+      
+      if (editMode) {
+        const updateData = { ...formData };
+        if (!updateData.password) {
+          delete updateData.password;
+        }
+        delete updateData.email;
+        
+        await axios.put(`${BACKEND_URL}/api/users/${editingUserId}`, updateData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('User updated successfully');
+      } else {
+        await axios.post(`${BACKEND_URL}/api/users`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('User created successfully');
+      }
+      
       setOpen(false);
+      setEditMode(false);
+      setEditingUserId(null);
       setFormData({
         email: '',
         password: '',
@@ -69,10 +86,44 @@ const UserManagement = () => {
         date_of_joining: '',
         date_of_birth: '',
         reporting_manager_id: '',
+        leave_balance: 20,
       });
       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create user');
+      toast.error(error.response?.data?.detail || `Failed to ${editMode ? 'update' : 'create'} user`);
+    }
+  };
+
+  const openEditDialog = (user) => {
+    setEditMode(true);
+    setEditingUserId(user.id);
+    setFormData({
+      email: user.email,
+      password: '',
+      name: user.name,
+      role: user.role,
+      designation: user.designation || '',
+      practice: user.practice || '',
+      date_of_joining: user.date_of_joining || '',
+      date_of_birth: user.date_of_birth || '',
+      reporting_manager_id: user.reporting_manager_id || '',
+      leave_balance: user.leave_balance || 20,
+    });
+    setOpen(true);
+  };
+
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${BACKEND_URL}/api/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('User deleted successfully');
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete user');
     }
   };
 
