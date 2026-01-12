@@ -133,16 +133,37 @@ const UserManagement = () => {
     <div data-testid="user-management">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(val) => {
+          setOpen(val);
+          if (!val) {
+            setEditMode(false);
+            setEditingUserId(null);
+          }
+        }}>
           <DialogTrigger asChild>
-            <Button data-testid="add-user-button">
+            <Button data-testid="add-user-button" onClick={() => {
+              setEditMode(false);
+              setEditingUserId(null);
+              setFormData({
+                email: '',
+                password: '',
+                name: '',
+                role: 'employee',
+                designation: '',
+                practice: '',
+                date_of_joining: '',
+                date_of_birth: '',
+                reporting_manager_id: '',
+                leave_balance: 20,
+              });
+            }}>
               <Plus size={20} className="mr-2" />
               Add User
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New User</DialogTitle>
+              <DialogTitle>{editMode ? 'Edit User' : 'Create New User'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4" data-testid="user-form">
               <div className="grid grid-cols-2 gap-4">
