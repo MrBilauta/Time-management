@@ -805,27 +805,31 @@ async def get_timesheet_summary(current_user: dict = Depends(require_role(["admi
 
 @api_router.get("/reports/project-hours")
 async def get_project_hours(current_user: dict = Depends(require_role(["admin", "manager"]))):
-    timesheets = await db.timesheets.find({"status": "approved"}, {"_id": 0}).to_list(1000)
-    
-    # Calculate hours by project
-    project_hours = {}
-    for ts in timesheets:
-        for entry in ts["entries"]:
-            project_code = entry.get("project_code", "")
-            if project_code:
-                if project_code not in project_hours:
-                    project_hours[project_code] = 0
-                # Sum all daily hours - convert to float to handle string values
-                daily_hours = sum([
-                    float(entry.get("mon", 0) or 0),
-                    float(entry.get("tue", 0) or 0),
-                    float(entry.get("wed", 0) or 0),
-                    float(entry.get("thu", 0) or 0),
-                    float(entry.get("fri", 0) or 0)
-                ])
-                project_hours[project_code] += daily_hours
-    
-    return project_hours
+    try:
+        timesheets = await db.timesheets.find({"status": "approved"}, {"_id": 0}).to_list(1000)
+        
+        # Calculate hours by project
+        project_hours = {}
+        for ts in timesheets:
+            for entry in ts["entries"]:
+                project_code = entry.get("project_code", "")
+                if project_code:
+                    if project_code not in project_hours:
+                        project_hours[project_code] = 0
+                    # Sum all daily hours - convert to float to handle string values
+                    daily_hours = sum([
+                        float(entry.get("mon", 0) or 0),
+                        float(entry.get("tue", 0) or 0),
+                        float(entry.get("wed", 0) or 0),
+                        float(entry.get("thu", 0) or 0),
+                        float(entry.get("fri", 0) or 0)
+                    ])
+                    project_hours[project_code] += daily_hours
+        
+        return project_hours
+    except Exception as e:
+        logger.error(f"Error fetching project hours: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch reports: {str(e)}")
 
 # ============ CSV EXPORT ROUTES ============
 
