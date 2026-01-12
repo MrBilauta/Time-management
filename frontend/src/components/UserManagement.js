@@ -18,6 +18,7 @@ const UserManagement = () => {
   const [open, setOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,6 +33,10 @@ const UserManagement = () => {
   });
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
     fetchUsers();
   }, []);
 
