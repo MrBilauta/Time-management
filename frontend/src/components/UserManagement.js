@@ -178,12 +178,12 @@ const UserManagement = () => {
                 Add User
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editMode ? 'Edit User' : 'Create New User'}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4" data-testid="user-form">
-              <div className="grid grid-cols-2 gap-4">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editMode ? 'Edit User' : 'Create New User'}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4" data-testid="user-form">
+                <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Name *</Label>
                   <Input
