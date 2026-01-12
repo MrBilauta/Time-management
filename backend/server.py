@@ -786,18 +786,22 @@ async def delete_reimbursement(reimbursement_id: str, current_user: dict = Depen
 
 @api_router.get("/reports/timesheet-summary")
 async def get_timesheet_summary(current_user: dict = Depends(require_role(["admin", "manager"]))):
-    timesheets = await db.timesheets.find({"status": "approved"}, {"_id": 0}).to_list(1000)
-    
-    # Calculate summary by user
-    summary = {}
-    for ts in timesheets:
-        user_id = ts["user_id"]
-        if user_id not in summary:
-            summary[user_id] = {"total_hours": 0, "weeks": 0}
-        summary[user_id]["total_hours"] += ts["total_hours"]
-        summary[user_id]["weeks"] += 1
-    
-    return summary
+    try:
+        timesheets = await db.timesheets.find({"status": "approved"}, {"_id": 0}).to_list(1000)
+        
+        # Calculate summary by user
+        summary = {}
+        for ts in timesheets:
+            user_id = ts["user_id"]
+            if user_id not in summary:
+                summary[user_id] = {"total_hours": 0, "weeks": 0}
+            summary[user_id]["total_hours"] += ts["total_hours"]
+            summary[user_id]["weeks"] += 1
+        
+        return summary
+    except Exception as e:
+        logger.error(f"Error fetching timesheet summary: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch reports: {str(e)}")
 
 @api_router.get("/reports/project-hours")
 async def get_project_hours(current_user: dict = Depends(require_role(["admin", "manager"]))):
