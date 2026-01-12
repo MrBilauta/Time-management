@@ -62,11 +62,22 @@ const ProjectManagement = ({ user }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/projects`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Project created successfully');
+      
+      if (editMode) {
+        await axios.put(`${BACKEND_URL}/api/projects/${editingProjectId}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('Project updated successfully');
+      } else {
+        await axios.post(`${BACKEND_URL}/api/projects`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('Project created successfully');
+      }
+      
       setOpen(false);
+      setEditMode(false);
+      setEditingProjectId(null);
       setFormData({
         project_code: '',
         description: '',
@@ -77,7 +88,36 @@ const ProjectManagement = ({ user }) => {
       });
       fetchProjects();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create project');
+      toast.error(error.response?.data?.detail || `Failed to ${editMode ? 'update' : 'create'} project`);
+    }
+  };
+
+  const openEditDialog = (project) => {
+    setEditMode(true);
+    setEditingProjectId(project.id);
+    setFormData({
+      project_code: project.project_code,
+      description: project.description,
+      project_manager_id: project.project_manager_id,
+      estimated_hours: project.estimated_hours,
+      sub_codes: project.sub_codes || [],
+      team_members: project.team_members || [],
+    });
+    setOpen(true);
+  };
+
+  const deleteProject = async (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${BACKEND_URL}/api/projects/${projectId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Project deleted successfully');
+      fetchProjects();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete project');
     }
   };
 
