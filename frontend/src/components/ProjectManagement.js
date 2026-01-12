@@ -16,6 +16,8 @@ const ProjectManagement = ({ user }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState(null);
   const [formData, setFormData] = useState({
     project_code: '',
     description: '',
