@@ -181,12 +181,36 @@ const ProjectManagement = ({ user }) => {
                 <Label>Estimated Hours *</Label>
                 <Input
                   type="number"
+                  step="0.5"
                   placeholder="e.g., 160"
                   value={formData.estimated_hours}
                   onChange={(e) => setFormData({ ...formData, estimated_hours: parseFloat(e.target.value) })}
                   required
                   data-testid="project-hours-input"
                 />
+              </div>
+              <div>
+                <Label>Assign Team Members</Label>
+                <div className="border rounded p-4 max-h-48 overflow-y-auto space-y-2">
+                  {users.map((u) => (
+                    <div key={u.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`user-${u.id}`}
+                        checked={formData.team_members.includes(u.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData({ ...formData, team_members: [...formData.team_members, u.id] });
+                          } else {
+                            setFormData({ ...formData, team_members: formData.team_members.filter(id => id !== u.id) });
+                          }
+                        }}
+                      />
+                      <label htmlFor={`user-${u.id}`} className="text-sm cursor-pointer">
+                        {u.name} ({u.email})
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
               <Button type="submit" className="w-full" data-testid="submit-project-button">
                 {editMode ? 'Update Project' : 'Create Project'}
