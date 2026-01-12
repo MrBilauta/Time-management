@@ -187,12 +187,12 @@ const UserManagement = () => {
                   />
                 </div>
                 <div>
-                  <Label>Password *</Label>
+                  <Label>Password {editMode ? '(leave blank to keep current)' : '*'}</Label>
                   <Input
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    required
+                    required={!editMode}
                     data-testid="user-password-input"
                   />
                 </div>
