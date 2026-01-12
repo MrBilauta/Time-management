@@ -127,16 +127,33 @@ const ProjectManagement = ({ user }) => {
     <div data-testid="project-management">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(val) => {
+          setOpen(val);
+          if (!val) {
+            setEditMode(false);
+            setEditingProjectId(null);
+          }
+        }}>
           <DialogTrigger asChild>
-            <Button data-testid="add-project-button">
+            <Button data-testid="add-project-button" onClick={() => {
+              setEditMode(false);
+              setEditingProjectId(null);
+              setFormData({
+                project_code: '',
+                description: '',
+                project_manager_id: user.id,
+                estimated_hours: 0,
+                sub_codes: [],
+                team_members: [],
+              });
+            }}>
               <Plus size={20} className="mr-2" />
               Create Project
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Create New Project</DialogTitle>
+              <DialogTitle>{editMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4" data-testid="project-form">
               <div>
