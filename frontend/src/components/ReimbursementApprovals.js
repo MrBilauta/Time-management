@@ -57,16 +57,21 @@ const ReimbursementApprovals = ({ user }) => {
   const handleApprove = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/reimbursements/${selectedReimbursement.id}/approve`, 
-        { comments },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Reimbursement approved');
+      const formData = new FormData();
+      if (comments) formData.append('comments', comments);
+      
+      const response = await axios.post(`${BACKEND_URL}/api/reimbursements/${selectedReimbursement.id}/approve`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.success(response.data.message || 'Reimbursement approved');
       setDialogOpen(false);
       setComments('');
       fetchReimbursements();
     } catch (error) {
-      toast.error('Failed to approve reimbursement');
+      toast.error(error.response?.data?.detail || 'Failed to approve reimbursement');
     }
   };
 
@@ -77,16 +82,21 @@ const ReimbursementApprovals = ({ user }) => {
     }
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/reimbursements/${selectedReimbursement.id}/reject`, 
-        { comments },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Reimbursement rejected');
+      const formData = new FormData();
+      formData.append('comments', comments);
+      
+      const response = await axios.post(`${BACKEND_URL}/api/reimbursements/${selectedReimbursement.id}/reject`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.success(response.data.message || 'Reimbursement rejected');
       setDialogOpen(false);
       setComments('');
       fetchReimbursements();
     } catch (error) {
-      toast.error('Failed to reject reimbursement');
+      toast.error(error.response?.data?.detail || 'Failed to reject reimbursement');
     }
   };
 
