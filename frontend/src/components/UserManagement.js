@@ -16,6 +16,8 @@ const UserManagement = () => {
   const [managers, setManagers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -26,6 +28,7 @@ const UserManagement = () => {
     date_of_joining: '',
     date_of_birth: '',
     reporting_manager_id: '',
+    leave_balance: 20,
   });
 
   useEffect(() => {
