@@ -55,7 +55,11 @@ const TimesheetManagement = ({ user }) => {
       const response = await axios.get(`${BACKEND_URL}/api/projects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setProjects(response.data);
+      // Filter to only show projects where user is a team member
+      const assignedProjects = response.data.filter(p => 
+        p.team_members && p.team_members.includes(user.id)
+      );
+      setProjects(assignedProjects);
     } catch (error) {
       console.error('Failed to fetch projects');
     }
