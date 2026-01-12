@@ -65,11 +65,22 @@ const InvoiceManagement = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/invoices`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Invoice created successfully');
+      
+      if (editMode) {
+        await axios.put(`${BACKEND_URL}/api/invoices/${editingInvoiceId}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('Invoice updated successfully');
+      } else {
+        await axios.post(`${BACKEND_URL}/api/invoices`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('Invoice created successfully');
+      }
+      
       setOpen(false);
+      setEditMode(false);
+      setEditingInvoiceId(null);
       setFormData({
         project_id: '',
         milestone_name: '',
@@ -82,7 +93,38 @@ const InvoiceManagement = () => {
       });
       fetchInvoices();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create invoice');
+      toast.error(error.response?.data?.detail || `Failed to ${editMode ? 'update' : 'create'} invoice`);
+    }
+  };
+
+  const openEditDialog = (invoice) => {
+    setEditMode(true);
+    setEditingInvoiceId(invoice.id);
+    setFormData({
+      project_id: invoice.project_id,
+      milestone_name: invoice.milestone_name || '',
+      milestone_description: invoice.milestone_description || '',
+      milestone_due_date: invoice.milestone_due_date || '',
+      estimated_hours: invoice.estimated_hours,
+      estimated_cost: invoice.estimated_cost,
+      payment_terms: invoice.payment_terms || '',
+      notes: invoice.notes || '',
+    });
+    setOpen(true);
+  };
+
+  const deleteInvoice = async (invoiceId) => {
+    if (!window.confirm('Are you sure you want to delete this invoice?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${BACKEND_URL}/api/invoices/${invoiceId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Invoice deleted successfully');
+      fetchInvoices();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete invoice');
     }
   };
 
