@@ -188,7 +188,7 @@ const ProjectManagement = ({ user }) => {
                 />
               </div>
               <Button type="submit" className="w-full" data-testid="submit-project-button">
-                Create Project
+                {editMode ? 'Update Project' : 'Create Project'}
               </Button>
             </form>
           </DialogContent>
