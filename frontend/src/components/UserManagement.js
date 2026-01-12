@@ -270,7 +270,7 @@ const UserManagement = () => {
                 </div>
               </div>
               <Button type="submit" className="w-full" data-testid="submit-user-button">
-                Create User
+                {editMode ? 'Update User' : 'Create User'}
               </Button>
             </form>
           </DialogContent>
