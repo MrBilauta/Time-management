@@ -106,6 +106,29 @@ const ReimbursementApprovals = ({ user }) => {
     setDialogOpen(true);
   };
 
+  const downloadReceipt = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${BACKEND_URL}/api/reimbursements/${id}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      const filename = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'receipt';
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Receipt downloaded');
+    } catch (error) {
+      toast.error('Failed to download receipt');
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
