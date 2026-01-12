@@ -60,6 +60,9 @@ const AdminDashboard = ({ user, onLogout }) => {
         <div className="max-w-7xl mx-auto">
           {activeTab === 'users' && <UserManagement />}
           {activeTab === 'projects' && <ProjectManagement user={user} />}
+          {activeTab === 'timesheets' && <TimesheetApprovals user={user} />}
+          {activeTab === 'leaves' && <LeaveApprovals user={user} />}
+          {activeTab === 'reimbursements' && <ReimbursementApprovals user={user} />}
           {activeTab === 'invoices' && <InvoiceManagement />}
           {activeTab === 'reports' && <Reports />}
         </div>
