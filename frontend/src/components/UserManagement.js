@@ -292,6 +292,37 @@ const UserManagement = () => {
             </form>
           </DialogContent>
         </Dialog>
+        )}
+        {currentUser?.role === 'manager' && editMode && (
+          <Dialog open={open} onOpenChange={(val) => {
+            setOpen(val);
+            if (!val) {
+              setEditMode(false);
+              setEditingUserId(null);
+            }
+          }}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Leave Balance</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label>Leave Balance (Days)</Label>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    value={formData.leave_balance}
+                    onChange={(e) => setFormData({ ...formData, leave_balance: parseFloat(e.target.value) })}
+                    data-testid="user-leave-balance-input"
+                  />
+                </div>
+                <Button type="submit" className="w-full">
+                  Update Leave Balance
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow">
