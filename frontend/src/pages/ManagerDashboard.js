@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { FolderKanban, Clock, Calendar, Receipt, BarChart3, LogOut } from 'lucide-react';
+import { FolderKanban, Clock, Calendar, Receipt, BarChart3, LogOut, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import UserManagement from '@/components/UserManagement';
 import ProjectManagement from '@/components/ProjectManagement';
 import TimesheetApprovals from '@/components/TimesheetApprovals';
 import LeaveApprovals from '@/components/LeaveApprovals';
@@ -11,6 +12,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('projects');
 
   const menuItems = [
+    { id: 'users', label: 'Team Members', icon: Users },
     { id: 'projects', label: 'Projects', icon: FolderKanban },
     { id: 'timesheets', label: 'Timesheet Approvals', icon: Clock },
     { id: 'leaves', label: 'Leave Approvals', icon: Calendar },
