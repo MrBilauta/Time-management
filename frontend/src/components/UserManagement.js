@@ -100,21 +100,32 @@ const UserManagement = () => {
   };
 
   const openEditDialog = (user) => {
-    setEditMode(true);
-    setEditingUserId(user.id);
-    setFormData({
-      email: user.email,
-      password: '',
-      name: user.name,
-      role: user.role,
-      designation: user.designation || '',
-      practice: user.practice || '',
-      date_of_joining: user.date_of_joining || '',
-      date_of_birth: user.date_of_birth || '',
-      reporting_manager_id: user.reporting_manager_id || '',
-      leave_balance: user.leave_balance || 20,
-    });
-    setOpen(true);
+    if (currentUser?.role === 'manager') {
+      // Manager can only edit leave balance
+      setEditMode(true);
+      setEditingUserId(user.id);
+      setFormData({
+        leave_balance: user.leave_balance || 20,
+      });
+      setOpen(true);
+    } else {
+      // Admin can edit everything
+      setEditMode(true);
+      setEditingUserId(user.id);
+      setFormData({
+        email: user.email,
+        password: '',
+        name: user.name,
+        role: user.role,
+        designation: user.designation || '',
+        practice: user.practice || '',
+        date_of_joining: user.date_of_joining || '',
+        date_of_birth: user.date_of_birth || '',
+        reporting_manager_id: user.reporting_manager_id || '',
+        leave_balance: user.leave_balance || 20,
+      });
+      setOpen(true);
+    }
   };
 
   const deleteUser = async (userId) => {
