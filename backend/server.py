@@ -769,6 +769,30 @@ async def reject_reimbursement(reimbursement_id: str, comments: str = Form(...),
         logger.error(f"Error rejecting reimbursement: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to reject reimbursement: {str(e)}")
 
+@api_router.get("/reimbursements/{reimbursement_id}/download")
+async def download_reimbursement_receipt(reimbursement_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        reimbursement = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
+        if not reimbursement:
+            raise HTTPException(status_code=404, detail="Reimbursement not found")
+        
+        if not reimbursement.get("receipt"):
+            raise HTTPException(status_code=404, detail="No receipt attached")
+        
+        receipt = reimbursement["receipt"]
+        content = base64.b64decode(receipt["data"])
+        
+        return StreamingResponse(
+            io.BytesIO(content),
+            media_type=receipt["content_type"],
+            headers={"Content-Disposition": f"attachment; filename={receipt['filename']}"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error downloading receipt: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to download receipt")
+
 @api_router.delete("/reimbursements/{reimbursement_id}")
 async def delete_reimbursement(reimbursement_id: str, current_user: dict = Depends(get_current_user)):
     reimbursement = await db.reimbursements.find_one({"id": reimbursement_id}, {"_id": 0})
