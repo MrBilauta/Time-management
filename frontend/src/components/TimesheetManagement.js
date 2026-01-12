@@ -314,10 +314,15 @@ const TimesheetManagement = ({ user }) => {
                     {timesheet.status}
                   </span>
                   {timesheet.status === 'draft' && (
-                    <Button size="sm" onClick={() => submitTimesheet(timesheet.id)} data-testid={`submit-timesheet-${timesheet.id}`}>
-                      <Send size={16} className="mr-1" />
-                      Submit
-                    </Button>
+                    <>
+                      <Button size="sm" variant="outline" onClick={() => editTimesheet(timesheet)} data-testid={`edit-timesheet-${timesheet.id}`}>
+                        Edit
+                      </Button>
+                      <Button size="sm" onClick={() => submitTimesheet(timesheet.id)} data-testid={`submit-timesheet-${timesheet.id}`}>
+                        <Send size={16} className="mr-1" />
+                        Submit
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
