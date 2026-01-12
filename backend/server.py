@@ -532,7 +532,7 @@ async def reject_timesheet(timesheet_id: str, comments: str = Form(...), current
         raise
     except Exception as e:
         logger.error(f"Error rejecting timesheet: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to reject timesheet: {str(e)}"))
+        raise HTTPException(status_code=500, detail=f"Failed to reject timesheet: {str(e)}")
 
 @api_router.delete("/timesheets/{timesheet_id}")
 async def delete_timesheet(timesheet_id: str, current_user: dict = Depends(get_current_user)):
