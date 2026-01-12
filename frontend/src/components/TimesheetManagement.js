@@ -136,6 +136,12 @@ const TimesheetManagement = ({ user }) => {
     }
   };
 
+  const editTimesheet = (timesheet) => {
+    setWeekStart(timesheet.week_start);
+    setEntries(timesheet.entries);
+    setOpen(true);
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
