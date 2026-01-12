@@ -57,16 +57,21 @@ const LeaveApprovals = ({ user }) => {
   const handleApprove = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/leaves/${selectedLeave.id}/approve`, 
-        { comments },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Leave approved');
+      const formData = new FormData();
+      if (comments) formData.append('comments', comments);
+      
+      const response = await axios.post(`${BACKEND_URL}/api/leaves/${selectedLeave.id}/approve`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.success(response.data.message || 'Leave approved');
       setDialogOpen(false);
       setComments('');
       fetchLeaves();
     } catch (error) {
-      toast.error('Failed to approve leave');
+      toast.error(error.response?.data?.detail || 'Failed to approve leave');
     }
   };
 
@@ -77,16 +82,21 @@ const LeaveApprovals = ({ user }) => {
     }
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${BACKEND_URL}/api/leaves/${selectedLeave.id}/reject`, 
-        { comments },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Leave rejected');
+      const formData = new FormData();
+      formData.append('comments', comments);
+      
+      const response = await axios.post(`${BACKEND_URL}/api/leaves/${selectedLeave.id}/reject`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      toast.success(response.data.message || 'Leave rejected');
       setDialogOpen(false);
       setComments('');
       fetchLeaves();
     } catch (error) {
-      toast.error('Failed to reject leave');
+      toast.error(error.response?.data?.detail || 'Failed to reject leave');
     }
   };
 
