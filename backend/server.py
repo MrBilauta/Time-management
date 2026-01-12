@@ -337,12 +337,17 @@ async def create_user(user_data: UserCreate, current_user: dict = Depends(requir
     return user.model_dump()
 
 @api_router.put("/users/{user_id}")
-async def update_user(user_id: str, updates: dict, current_user: dict = Depends(require_role(["admin"]))):
+async def update_user(user_id: str, updates: dict, current_user: dict = Depends(require_role(["admin", "manager"]))):
     if "password" in updates:
         updates["password"] = get_password_hash(updates["password"])
     
+    # Manager can only update leave_balance, admin can update everything
+    if current_user["role"] == "manager":
+        allowed_fields = ["leave_balance"]
+        updates = {k: v for k, v in updates.items() if k in allowed_fields}
+    
     result = await db.users.update_one({"id": user_id}, {"$set": updates})
-    if result.modified_count == 0:
+    if result.modified_count == 0 and result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     
     updated_user = await db.users.find_one({"id": user_id}, {"_id": 0, "password": 0})
