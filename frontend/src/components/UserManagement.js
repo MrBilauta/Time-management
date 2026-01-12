@@ -363,16 +363,18 @@ const UserManagement = () => {
                       onClick={() => openEditDialog(user)}
                       data-testid={`edit-user-${user.id}`}
                     >
-                      Edit
+                      {currentUser?.role === 'manager' ? 'Edit Balance' : 'Edit'}
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteUser(user.id)}
-                      data-testid={`delete-user-${user.id}`}
-                    >
-                      Delete
-                    </Button>
+                    {currentUser?.role === 'admin' && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => deleteUser(user.id)}
+                        data-testid={`delete-user-${user.id}`}
+                      >
+                        Delete
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
