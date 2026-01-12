@@ -244,6 +244,16 @@ const UserManagement = () => {
                   />
                 </div>
                 <div className="col-span-2">
+                  <Label>Leave Balance (Days)</Label>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    value={formData.leave_balance}
+                    onChange={(e) => setFormData({ ...formData, leave_balance: parseFloat(e.target.value) })}
+                    data-testid="user-leave-balance-input"
+                  />
+                </div>
+                <div className="col-span-2">
                   <Label>Reporting Manager</Label>
                   <Select value={formData.reporting_manager_id} onValueChange={(val) => setFormData({ ...formData, reporting_manager_id: val })}>
                     <SelectTrigger data-testid="user-manager-select">
