@@ -253,7 +253,7 @@ const InvoiceManagement = () => {
                 />
               </div>
               <Button type="submit" className="w-full" data-testid="submit-invoice-button">
-                Create Invoice
+                {editMode ? 'Update Invoice' : 'Create Invoice'}
               </Button>
             </form>
           </DialogContent>
