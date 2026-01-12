@@ -17,6 +17,8 @@ const InvoiceManagement = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingInvoiceId, setEditingInvoiceId] = useState(null);
   const [formData, setFormData] = useState({
     project_id: '',
     milestone_name: '',
