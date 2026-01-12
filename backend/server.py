@@ -471,50 +471,68 @@ async def submit_timesheet(timesheet_id: str, current_user: dict = Depends(get_c
     return updated
 
 @api_router.post("/timesheets/{timesheet_id}/approve")
-async def approve_timesheet(timesheet_id: str, comments: Optional[str] = None, current_user: dict = Depends(require_role(["admin", "manager"]))):
-    timesheet = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
-    if not timesheet:
-        raise HTTPException(status_code=404, detail="Timesheet not found")
-    
-    updates = {
-        "status": "approved",
-        "reviewed_by": current_user["id"],
-        "reviewed_at": datetime.now(timezone.utc).isoformat(),
-        "comments": comments
-    }
-    await db.timesheets.update_one({"id": timesheet_id}, {"$set": updates})
-    
-    # Send email notification
-    user = await db.users.find_one({"id": timesheet["user_id"]}, {"_id": 0})
-    if user:
-        email_html = create_approval_email(user["name"], "timesheet", "approved", comments)
-        await send_email_notification(user["email"], "Timesheet Approved", email_html)
-    
-    updated = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
-    return updated
+async def approve_timesheet(timesheet_id: str, comments: Optional[str] = Form(None), current_user: dict = Depends(require_role(["admin", "manager"]))):
+    try:
+        timesheet = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
+        if not timesheet:
+            raise HTTPException(status_code=404, detail="Timesheet not found")
+        
+        updates = {
+            "status": "approved",
+            "reviewed_by": current_user["id"],
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "comments": comments
+        }
+        result = await db.timesheets.update_one({"id": timesheet_id}, {"$set": updates})
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update timesheet")
+        
+        # Send email notification
+        user = await db.users.find_one({"id": timesheet["user_id"]}, {"_id": 0})
+        if user:
+            email_html = create_approval_email(user["name"], "timesheet", "approved", comments)
+            await send_email_notification(user["email"], "Timesheet Approved", email_html)
+        
+        updated = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
+        return {"status": "success", "data": updated, "message": "Timesheet approved successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error approving timesheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to approve timesheet: {str(e)}")
 
 @api_router.post("/timesheets/{timesheet_id}/reject")
-async def reject_timesheet(timesheet_id: str, comments: str, current_user: dict = Depends(require_role(["admin", "manager"]))):
-    timesheet = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
-    if not timesheet:
-        raise HTTPException(status_code=404, detail="Timesheet not found")
-    
-    updates = {
-        "status": "rejected",
-        "reviewed_by": current_user["id"],
-        "reviewed_at": datetime.now(timezone.utc).isoformat(),
-        "comments": comments
-    }
-    await db.timesheets.update_one({"id": timesheet_id}, {"$set": updates})
-    
-    # Send email notification
-    user = await db.users.find_one({"id": timesheet["user_id"]}, {"_id": 0})
-    if user:
-        email_html = create_approval_email(user["name"], "timesheet", "rejected", comments)
-        await send_email_notification(user["email"], "Timesheet Rejected", email_html)
-    
-    updated = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
-    return updated
+async def reject_timesheet(timesheet_id: str, comments: str = Form(...), current_user: dict = Depends(require_role(["admin", "manager"]))):
+    try:
+        timesheet = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
+        if not timesheet:
+            raise HTTPException(status_code=404, detail="Timesheet not found")
+        
+        updates = {
+            "status": "rejected",
+            "reviewed_by": current_user["id"],
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "comments": comments
+        }
+        result = await db.timesheets.update_one({"id": timesheet_id}, {"$set": updates})
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update timesheet")
+        
+        # Send email notification
+        user = await db.users.find_one({"id": timesheet["user_id"]}, {"_id": 0})
+        if user:
+            email_html = create_approval_email(user["name"], "timesheet", "rejected", comments)
+            await send_email_notification(user["email"], "Timesheet Rejected", email_html)
+        
+        updated = await db.timesheets.find_one({"id": timesheet_id}, {"_id": 0})
+        return {"status": "success", "data": updated, "message": "Timesheet rejected successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error rejecting timesheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to reject timesheet: {str(e)}"))
 
 @api_router.delete("/timesheets/{timesheet_id}")
 async def delete_timesheet(timesheet_id: str, current_user: dict = Depends(get_current_user)):
